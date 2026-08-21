@@ -1,4 +1,4 @@
-// Copyright 2026 Enphase Energy, Inc.
+// Copyright %year% Enphase Energy, Inc.
 //
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -11,10 +11,3 @@
 //    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
-
-//! Private helpers for postcard max-serialized-size math.
-
-/// Max bytes for a postcard **varint**.
-pub(crate) const fn varint_max_bytes(int_bytes: usize) -> usize {
-    (int_bytes * 8 + 6) / 7
-}
