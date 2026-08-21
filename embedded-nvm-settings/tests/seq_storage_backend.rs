@@ -17,7 +17,7 @@
 /// These tests exercise the full load/store path through SeqStorageBackend.
 use embassy_futures::block_on;
 use embedded_storage_async::nor_flash::{ErrorType, MultiwriteNorFlash, NorFlash, ReadNorFlash};
-use nvm_settings::{NvmSettings, PostcardFormat, SeqStorageBackend};
+use embedded_nvm_settings::{NvmSettings, PostcardFormat, SeqStorageBackend};
 use sequential_storage::cache::NoCache;
 use sequential_storage::mock_flash::{MockFlashBase, MockFlashError, WriteCountCheck};
 use std::sync::{Arc, Mutex};

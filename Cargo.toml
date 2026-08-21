@@ -1,11 +1,11 @@
 [workspace]
 resolver = "3"
-members = ["postcard-versioned", "nvm-settings"]
+members = ["versioned-postcard", "embedded-nvm-settings"]
 
 [workspace.package]
 edition = "2024"
 license = "Apache-2.0"
-repository = "https://github.com/enphase/nvm-settings"
+repository = "https://github.com/enphase/embedded-nvm"
 rust-version = "1.85"
 
 [workspace.dependencies]

@@ -40,7 +40,7 @@
 //! versions down the `Prev` chain — size your buffers to it.
 //!
 //! ```
-//! use postcard_versioned::{Base, Version, WireSize};
+//! use versioned_postcard::{Base, Version, WireSize};
 //!
 //! // Normalized, app-facing type — no `Option`, no serde.
 //! #[derive(Clone, Copy, PartialEq, Debug)]
@@ -464,7 +464,7 @@ mod maxsize_tests {
 /// and a `from_prev` whose parameter is not the declared `Prev` fails at the impl site.
 ///
 /// ```compile_fail
-/// use postcard_versioned::{Base, Version, WireSize};
+/// use versioned_postcard::{Base, Version, WireSize};
 /// #[derive(Clone, Copy, serde::Serialize, serde::Deserialize)] struct A { x: u8 }
 /// impl WireSize for A { const SIZE: usize = 1; }
 /// impl Version for A { const TAG: u16 = 5; type Prev = Base; type Wire = A; fn from_prev(p: Base) -> A { match p {} } }
@@ -475,7 +475,7 @@ mod maxsize_tests {
 /// ```
 ///
 /// ```compile_fail
-/// use postcard_versioned::{Base, Version, WireSize};
+/// use versioned_postcard::{Base, Version, WireSize};
 /// #[derive(Clone, Copy, serde::Serialize, serde::Deserialize)] struct A { x: u8 }
 /// impl WireSize for A { const SIZE: usize = 1; }
 /// impl Version for A { const TAG: u16 = 1; type Prev = Base; type Wire = A; fn from_prev(p: u8) -> A { A { x: p } } }

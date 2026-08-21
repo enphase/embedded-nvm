@@ -1,6 +1,6 @@
 [package]
 edition = "2024"
-name = "nvm-settings"
+name = "embedded-nvm-settings"
 version = "0.1.0"
 publish = false
 description = "Memory-cached NVM settings for embedded with deferred async commit and ISR safety"
@@ -11,17 +11,17 @@ critical-section = { version = "1.2" }
 
 sequential-storage = { version = "7", optional = true }
 embedded-storage-async = { version = "0.4.1", optional = true }
-postcard-versioned = { path = "../postcard-versioned", optional = true }
+versioned-postcard = { path = "../versioned-postcard", optional = true }
 postcard = { version = "1.1", default-features = false, optional = true }
 serde = { version = "1.0", default-features = false, optional = true }
 defmt = { version = "1.0.1", optional = true }
 
 [features]
-default = ["sequential-storage", "postcard-versioned", "postcard"]
+default = ["sequential-storage", "versioned-postcard", "postcard"]
 sequential-storage = ["dep:sequential-storage", "dep:embedded-storage-async"]
-postcard-versioned = ["dep:postcard-versioned", "dep:serde"]
+versioned-postcard = ["dep:versioned-postcard", "dep:serde"]
 postcard = ["dep:postcard", "dep:serde"]
-defmt = ["dep:defmt", "postcard-versioned?/defmt", "sequential-storage?/defmt"]
+defmt = ["dep:defmt", "versioned-postcard?/defmt", "sequential-storage?/defmt"]
 
 [dev-dependencies]
 critical-section = { version = "1.2", features = ["std"] }

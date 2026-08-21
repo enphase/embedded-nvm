@@ -13,7 +13,7 @@
 //    limitations under the License.
 
 use embassy_futures::block_on;
-use nvm_settings::{
+use embedded_nvm_settings::{
     CommitError, LoadError, NvmSettings, PostcardFormat, SettingsFormat, StorageBackend,
 };
 

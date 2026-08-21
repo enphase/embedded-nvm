@@ -19,8 +19,8 @@ mod settings_format;
 
 #[cfg(feature = "sequential-storage")]
 mod backend_seq_storage;
-#[cfg(feature = "postcard-versioned")]
-mod format_postcard_versioned;
+#[cfg(feature = "versioned-postcard")]
+mod format_versioned_postcard;
 #[cfg(feature = "postcard")]
 mod format_postcard;
 
@@ -29,17 +29,17 @@ pub use settings_format::SettingsFormat;
 
 #[cfg(feature = "sequential-storage")]
 pub use backend_seq_storage::SeqStorageBackend;
-#[cfg(feature = "postcard-versioned")]
-pub use format_postcard_versioned::PostcardVersionedFormat;
+#[cfg(feature = "versioned-postcard")]
+pub use format_versioned_postcard::PostcardVersionedFormat;
 #[cfg(feature = "postcard")]
 pub use format_postcard::PostcardFormat;
 
 /// Convenience alias for the common configuration: sequential-storage backend
-/// with postcard-versioned format.
+/// with versioned-postcard format.
 ///
-/// Set `BUF_SIZE` to `<T as postcard_versioned::Version>::RECORD_MAX + 1`.
+/// Set `BUF_SIZE` to `<T as versioned_postcard::Version>::RECORD_MAX + 1`.
 /// Automatic derivation is not yet supported on stable Rust because of `generic_const_exprs`.
-#[cfg(all(feature = "sequential-storage", feature = "postcard-versioned"))]
+#[cfg(all(feature = "sequential-storage", feature = "versioned-postcard"))]
 pub type SeqNvmSettings<
     T,
     S,
