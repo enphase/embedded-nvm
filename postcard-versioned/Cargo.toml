@@ -1,0 +1,23 @@
+[package]
+edition = "2024"
+name = "postcard-versioned"
+version = "0.1.0"
+publish = false
+description = "Versioned, migratable postcard records for no_std: a version-tag frame, zero-pad tolerant decode for appended fields, and an Upgrade migration chain"
+
+[dependencies]
+serde = { version = "1.0", default-features = false, features = ["derive"] }
+postcard = { version = "1.1", default-features = false }
+
+[features]
+# Opt-in: derive payload sizes from postcard's `MaxSize` (adds `WireFixed` + a `WireSize` blanket).
+max-size = ["postcard/experimental-derive"]
+defmt = ["dep:defmt"]
+
+[dependencies.defmt]
+version = "1.0.1"
+optional = true
+
+[dev-dependencies]
+# Only used by the `maxsize_tests` (feature `max-size`) to demonstrate auto-sizing for `fixed` types.
+fixed = { version = "1.28.0", features = ["serde"] }

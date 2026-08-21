@@ -1,0 +1,30 @@
+[package]
+edition = "2024"
+name = "nvm-settings"
+version = "0.1.0"
+publish = false
+description = "Memory-cached NVM settings for embedded with deferred async commit and ISR safety"
+
+[dependencies]
+embassy-sync = { version = "0.7.2" }
+critical-section = { version = "1.2" }
+
+sequential-storage = { version = "7", optional = true }
+embedded-storage-async = { version = "0.4.1", optional = true }
+postcard-versioned = { path = "../postcard-versioned", optional = true }
+postcard = { version = "1.1", default-features = false, optional = true }
+serde = { version = "1.0", default-features = false, optional = true }
+defmt = { version = "1.0.1", optional = true }
+
+[features]
+sequential-storage = ["dep:sequential-storage", "dep:embedded-storage-async"]
+postcard-versioned = ["dep:postcard-versioned", "dep:serde"]
+postcard = ["dep:postcard", "dep:serde"]
+defmt = ["dep:defmt", "postcard-versioned?/defmt", "sequential-storage?/defmt"]
+
+[dev-dependencies]
+critical-section = { version = "1.2", features = ["std"] }
+serde = { version = "1.0", features = ["derive"] }
+postcard = { version = "1.1" }
+embassy-futures = "0.1.2"
+sequential-storage = { version = "7", features = ["_test"] }
