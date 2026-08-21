@@ -22,9 +22,9 @@ use versioned_postcard::Version;
 /// on stable Rust because of generic_const_exprs.
 ///
 /// Zero-sized — carries no runtime state.
-pub struct PostcardVersionedFormat<const BUF_SIZE: usize>;
+pub struct VersionedPostcardFormat<const BUF_SIZE: usize>;
 
-impl<T, const BUF_SIZE: usize> SettingsFormat<T> for PostcardVersionedFormat<BUF_SIZE>
+impl<T, const BUF_SIZE: usize> SettingsFormat<T> for VersionedPostcardFormat<BUF_SIZE>
 where
     T: Copy + Version,
     T::Wire: serde::Serialize + From<T>,

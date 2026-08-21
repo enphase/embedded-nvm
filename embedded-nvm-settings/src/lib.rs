@@ -30,7 +30,7 @@ pub use settings_format::SettingsFormat;
 #[cfg(feature = "sequential-storage")]
 pub use backend_seq_storage::SeqStorageBackend;
 #[cfg(feature = "versioned-postcard")]
-pub use format_versioned_postcard::PostcardVersionedFormat;
+pub use format_versioned_postcard::VersionedPostcardFormat;
 #[cfg(feature = "postcard")]
 pub use format_postcard::PostcardFormat;
 
@@ -50,7 +50,7 @@ pub type SeqNvmSettings<
 > = NvmSettings<
     T,
     SeqStorageBackend<S, C, NVM_START, NVM_SIZE, BUF_SIZE>,
-    PostcardVersionedFormat<BUF_SIZE>,
+    VersionedPostcardFormat<BUF_SIZE>,
     BUF_SIZE,
 >;
 
