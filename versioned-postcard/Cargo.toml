@@ -1,9 +1,12 @@
 [package]
-edition = "2024"
 name = "versioned-postcard"
 version = "0.1.0"
-publish = false
 description = "Versioned, migratable postcard records for no_std: a version-tag frame, zero-pad tolerant decode for appended fields, and an Upgrade migration chain"
+categories = ["embedded", "no-std"]
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
 
 [dependencies]
 serde = { version = "1.0", default-features = false, features = ["derive"] }

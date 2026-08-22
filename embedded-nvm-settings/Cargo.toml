@@ -1,9 +1,12 @@
 [package]
-edition = "2024"
 name = "embedded-nvm-settings"
 version = "0.1.0"
-publish = false
 description = "Memory-cached NVM settings for embedded with deferred async commit and ISR safety"
+categories = ["embedded", "no-std"]
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
 
 [dependencies]
 embassy-sync = { version = "0.7.2" }
@@ -11,7 +14,7 @@ critical-section = { version = "1.2" }
 
 sequential-storage = { version = "7", optional = true }
 embedded-storage-async = { version = "0.4.1", optional = true }
-versioned-postcard = { path = "../versioned-postcard", optional = true }
+versioned-postcard = { version = "0.1", path = "../versioned-postcard", optional = true }
 postcard = { version = "1.1", default-features = false, optional = true }
 serde = { version = "1.0", default-features = false, optional = true }
 defmt = { version = "1.0.1", optional = true }
