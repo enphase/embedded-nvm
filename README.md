@@ -44,14 +44,14 @@ impl Version for Settings {
 // EMBEDDED-NVM-SETTINGS EXAMPLE
 //
 
-# use sequential_storage::mock_flash::{MockFlashBase, WriteCountCheck};
-# use sequential_storage::cache::NoCache;
-# type MockFlash = MockFlashBase<4, 4, 64>;
-# const FLASH_END: u32 = MockFlash::FULL_FLASH_RANGE.end;
-
 use embedded_nvm_settings::{SeqNvmSettings, SeqStorageBackend, VersionedPostcardFormat};
-
 const BUF_SIZE: usize = <Settings as Version>::RECORD_MAX + 1;
+
+// boilerplate for mock flash
+use sequential_storage::mock_flash::{MockFlashBase, WriteCountCheck};
+use sequential_storage::cache::NoCache;
+type MockFlash = MockFlashBase<4, 4, 64>;
+const FLASH_END: u32 = MockFlash::FULL_FLASH_RANGE.end;
 
 // On real hardware, use your HAL's flash driver, e.g. for STM32:
 //   type AsyncFlash = embassy_embedded_hal::adapter::BlockingAsync<
@@ -63,22 +63,23 @@ type AppSettings = SeqNvmSettings<Settings, MockFlash, NoCache, 0, FLASH_END, BU
 
 let backend = SeqStorageBackend::new(flash, NoCache::new());
 
-# embassy_futures::block_on(async {
-// creates a default AppSettings object
-// multiple references to settings can be shared with a StaticCell / RefCell wrapper
-let mut settings = AppSettings::new(backend, VersionedPostcardFormat);
+// this would be in your async firmware code
+embassy_futures::block_on(async {
+    // creates a default AppSettings object
+    // multiple references to settings can be shared with a StaticCell / RefCell wrapper
+    let mut settings = AppSettings::new(backend, VersionedPostcardFormat);
 
-// load existing settings from flash (if any)
-// on error, the settings object is unmodified and here keeps the initial defaults
-settings.load().await.ok();
+    // load existing settings from flash (if any)
+    // on error, the settings object is unmodified and here keeps the initial defaults
+    settings.load().await.ok();
 
-let a = settings.get().a;  // read value
+    let a = settings.get().a;  // read value
 
-// modify in-cache settings, also marks it as dirty
-settings.update(|mut s| { s.a = s.a + 1; s });
-// actually writes to NVM
-settings.commit().await.ok();
-# });
+    // modify in-cache settings, also marks it as dirty
+    settings.update(|mut s| { s.a = s.a + 1; s });
+    // actually writes to NVM
+    settings.commit().await.ok();
+});
 ```
 
 
