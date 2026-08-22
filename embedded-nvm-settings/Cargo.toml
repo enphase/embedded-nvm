@@ -29,7 +29,8 @@ defmt = ["dep:defmt", "versioned-postcard?/defmt", "sequential-storage?/defmt"]
 [dev-dependencies]
 critical-section = { version = "1.2", features = ["std"] }
 serde = { version = "1.0", features = ["derive"] }
-postcard = { version = "1.1" }
+postcard = { version = "1.1", features = ["experimental-derive"] }
+versioned-postcard = { path = "../versioned-postcard", features = ["max-size"] }
 embassy-futures = "0.1.2"
 sequential-storage = { version = "7", features = ["_test"] }
 embedded-storage-async = { version = "0.4.1" }

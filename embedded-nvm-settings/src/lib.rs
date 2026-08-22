@@ -12,7 +12,13 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+//! Cached persistent settings for embedded systems with deferred async commit.
 #![cfg_attr(not(test), no_std)]
+
+// Test README examples as doctests.
+#[cfg(doctest)]
+#[doc = include_str!("../../README.md")]
+struct ReadmeDoctests;
 
 mod storage_backend;
 mod settings_format;
