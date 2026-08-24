@@ -36,11 +36,17 @@ pub struct MemoryBackend {
 
 impl MemoryBackend {
     pub fn new() -> Self {
-        Self { data: None, fail: false }
+        Self {
+            data: None,
+            fail: false,
+        }
     }
 
     pub fn with_data(data: &[u8]) -> Self {
-        Self { data: Some(data.to_vec()), fail: false }
+        Self {
+            data: Some(data.to_vec()),
+            fail: false,
+        }
     }
 }
 
@@ -134,7 +140,10 @@ fn load_io_error_returns_storage_error() {
         let mut backend = MemoryBackend::new();
         backend.fail = true;
         let mut nvm = TestNvm::new(backend, fmt());
-        assert!(matches!(nvm.load().await, Err(LoadError::Storage(MemoryBackendError::Injected))));
+        assert!(matches!(
+            nvm.load().await,
+            Err(LoadError::Storage(MemoryBackendError::Injected))
+        ));
     });
 }
 
@@ -165,7 +174,10 @@ fn commit_store_error_restores_dirty() {
         nvm.update(|_| TestSettings { a: 1, b: 2 });
 
         let result = nvm.commit().await;
-        assert!(matches!(result, Err(CommitError::Storage(MemoryBackendError::Injected))));
+        assert!(matches!(
+            result,
+            Err(CommitError::Storage(MemoryBackendError::Injected))
+        ));
         assert_eq!(nvm.get(), TestSettings { a: 1, b: 2 });
     });
 }
@@ -188,7 +200,10 @@ fn multiple_updates_coalesce() {
 
 #[test]
 fn plain_postcard_roundtrip() {
-    let value = TestSettings { a: 0xDEAD, b: 0xBEEF };
+    let value = TestSettings {
+        a: 0xDEAD,
+        b: 0xBEEF,
+    };
     let mut buf = [0u8; 64];
     let n = fmt().serialize(&value, &mut buf).unwrap();
     let decoded = fmt().deserialize(&buf[..n]);

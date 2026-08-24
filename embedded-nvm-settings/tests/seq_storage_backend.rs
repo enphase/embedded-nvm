@@ -16,8 +16,8 @@
 ///
 /// These tests exercise the full load/store path through SeqStorageBackend.
 use embassy_futures::block_on;
-use embedded_storage_async::nor_flash::{ErrorType, MultiwriteNorFlash, NorFlash, ReadNorFlash};
 use embedded_nvm_settings::{NvmSettings, PostcardFormat, SeqStorageBackend};
+use embedded_storage_async::nor_flash::{ErrorType, MultiwriteNorFlash, NorFlash, ReadNorFlash};
 use sequential_storage::cache::NoCache;
 use sequential_storage::mock_flash::{MockFlashBase, MockFlashError, WriteCountCheck};
 use std::sync::{Arc, Mutex};
@@ -83,14 +83,20 @@ struct TestSettings {
 }
 
 fn make_nvm(flash: SharedFlash) -> SeqNvm {
-    SeqNvm::new(SeqStorageBackend::new(flash, NoCache::new()), PostcardFormat)
+    SeqNvm::new(
+        SeqStorageBackend::new(flash, NoCache::new()),
+        PostcardFormat,
+    )
 }
 
 #[test]
 fn seq_backend_store_and_load_roundtrip() {
     block_on(async {
         let flash = SharedFlash::new();
-        let expected = TestSettings { a: 0xDEAD_BEEF, b: 0x1234 };
+        let expected = TestSettings {
+            a: 0xDEAD_BEEF,
+            b: 0x1234,
+        };
 
         // --- Cycle 1: write ---
         {
@@ -114,7 +120,10 @@ fn seq_backend_blank_flash_returns_default() {
     block_on(async {
         let flash = SharedFlash::new();
         let mut nvm = make_nvm(flash);
-        let found = nvm.load().await.expect("load should not error on blank flash");
+        let found = nvm
+            .load()
+            .await
+            .expect("load should not error on blank flash");
         assert!(!found);
         assert_eq!(nvm.get(), TestSettings::default());
     });

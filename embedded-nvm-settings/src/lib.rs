@@ -20,25 +20,25 @@
 #[doc = include_str!("../../README.md")]
 struct ReadmeDoctests;
 
-mod storage_backend;
 mod settings_format;
+mod storage_backend;
 
 #[cfg(feature = "sequential-storage")]
 mod backend_seq_storage;
-#[cfg(feature = "versioned-postcard")]
-mod format_versioned_postcard;
 #[cfg(feature = "postcard")]
 mod format_postcard;
+#[cfg(feature = "versioned-postcard")]
+mod format_versioned_postcard;
 
-pub use storage_backend::StorageBackend;
 pub use settings_format::SettingsFormat;
+pub use storage_backend::StorageBackend;
 
 #[cfg(feature = "sequential-storage")]
 pub use backend_seq_storage::SeqStorageBackend;
-#[cfg(feature = "versioned-postcard")]
-pub use format_versioned_postcard::VersionedPostcardFormat;
 #[cfg(feature = "postcard")]
 pub use format_postcard::PostcardFormat;
+#[cfg(feature = "versioned-postcard")]
+pub use format_versioned_postcard::VersionedPostcardFormat;
 
 /// Convenience alias for the common configuration: sequential-storage backend
 /// with versioned-postcard format.
@@ -46,19 +46,13 @@ pub use format_postcard::PostcardFormat;
 /// Set `BUF_SIZE` to `<T as versioned_postcard::Version>::RECORD_MAX + 1`.
 /// Automatic derivation is not yet supported on stable Rust because of `generic_const_exprs`.
 #[cfg(all(feature = "sequential-storage", feature = "versioned-postcard"))]
-pub type SeqNvmSettings<
-    T,
-    S,
-    C,
-    const NVM_START: u32,
-    const NVM_SIZE: u32,
-    const BUF_SIZE: usize,
-> = NvmSettings<
-    T,
-    SeqStorageBackend<S, C, NVM_START, NVM_SIZE, BUF_SIZE>,
-    VersionedPostcardFormat<BUF_SIZE>,
-    BUF_SIZE,
->;
+pub type SeqNvmSettings<T, S, C, const NVM_START: u32, const NVM_SIZE: u32, const BUF_SIZE: usize> =
+    NvmSettings<
+        T,
+        SeqStorageBackend<S, C, NVM_START, NVM_SIZE, BUF_SIZE>,
+        VersionedPostcardFormat<BUF_SIZE>,
+        BUF_SIZE,
+    >;
 
 use core::cell::Cell;
 use embassy_sync::blocking_mutex::Mutex as BlockingMutex;
@@ -101,7 +95,7 @@ struct Cached<T> {
 /// # Concurrency & ISR safety
 ///
 /// [`get`](Self::get)/[`update`](Self::update) only take a
-/// `CriticalSectionRawMutex` critical section and should never wait and are 
+/// `CriticalSectionRawMutex` critical section and should never wait and are
 /// safe from any context including ISRs.
 ///
 /// [`commit`](Self::commit) is `async` and takes an async `Mutex`, so it can
@@ -143,7 +137,10 @@ impl<
     /// to populate the cache from storage.
     pub fn new(backend: B, format: F) -> Self {
         Self {
-            cache: BlockingMutex::new(Cell::new(Cached { value: T::default(), dirty: false })),
+            cache: BlockingMutex::new(Cell::new(Cached {
+                value: T::default(),
+                dirty: false,
+            })),
             writer: Mutex::new(backend),
             format,
         }
@@ -161,7 +158,12 @@ impl<
         match backend.load(&mut buf).await {
             Ok(Some(n)) => match self.format.deserialize(&buf[..n]) {
                 Ok(value) => {
-                    self.cache.lock(|c| c.set(Cached { value, dirty: false }));
+                    self.cache.lock(|c| {
+                        c.set(Cached {
+                            value,
+                            dirty: false,
+                        })
+                    });
                     Ok(true)
                 }
                 Err(e) => Err(LoadError::Deserialize(e)),
@@ -179,14 +181,17 @@ impl<
     /// Apply `f` to the cached value, updating the cached value.
     /// Synchronous, atomic, wait-free and ISR-safe.
     /// `f` runs inside a critical section (interrupts disabled), so keep it short.
-    /// 
+    ///
     /// Does not write flash, only marks the cache dirty if there is a change.
     /// Persist later via [`commit`](Self::commit).
     pub fn update(&self, f: impl FnOnce(T) -> T) {
         self.cache.lock(|c| {
             let cur = c.get();
             let new = f(cur.value);
-            c.set(Cached { value: new, dirty: cur.dirty || new != cur.value });
+            c.set(Cached {
+                value: new,
+                dirty: cur.dirty || new != cur.value,
+            });
         });
     }
 
@@ -200,7 +205,10 @@ impl<
         let value = match self.cache.lock(|c| {
             let cur = c.get();
             if cur.dirty {
-                c.set(Cached { value: cur.value, dirty: false });
+                c.set(Cached {
+                    value: cur.value,
+                    dirty: false,
+                });
                 Some(cur.value)
             } else {
                 None
@@ -214,7 +222,12 @@ impl<
         let len = match self.format.serialize(&value, &mut rec) {
             Ok(n) => n,
             Err(e) => {
-                self.cache.lock(|c| c.set(Cached { value: c.get().value, dirty: true }));
+                self.cache.lock(|c| {
+                    c.set(Cached {
+                        value: c.get().value,
+                        dirty: true,
+                    })
+                });
                 return Err(CommitError::Serialize(e));
             }
         };
@@ -223,7 +236,12 @@ impl<
         match backend.store(&rec[..len]).await {
             Ok(()) => Ok(()),
             Err(e) => {
-                self.cache.lock(|c| c.set(Cached { value: c.get().value, dirty: true }));
+                self.cache.lock(|c| {
+                    c.set(Cached {
+                        value: c.get().value,
+                        dirty: true,
+                    })
+                });
                 Err(CommitError::Storage(e))
             }
         }

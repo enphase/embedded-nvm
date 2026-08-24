@@ -16,7 +16,7 @@
 //! [`WireFixed`] to bridge `fixed`-point fields (no existing crate provides this).
 //!
 //! Usage: enable the `max-size` feature, import the `MaxSize` trait/derive from `postcard`
-//! directly (`use postcard::experimental::max_size::MaxSize;`), and add `#[derive(MaxSize)]` 
+//! directly (`use postcard::experimental::max_size::MaxSize;`), and add `#[derive(MaxSize)]`
 //! to wire types.
 //!
 //! For Fixed fields: wrap those fields in [`WireFixed`].

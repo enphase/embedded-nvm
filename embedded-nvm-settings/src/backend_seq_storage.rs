@@ -75,7 +75,11 @@ impl<
         // record slice into the caller's buf without borrow-checker aliasing issues.
         // (fetch_item returns a &[u8] subslice of the scratch buffer after the key bytes.)
         let mut scratch = [0u8; BUF_SIZE];
-        match self.storage.fetch_item::<&[u8]>(&mut scratch, &SETTINGS_KEY).await {
+        match self
+            .storage
+            .fetch_item::<&[u8]>(&mut scratch, &SETTINGS_KEY)
+            .await
+        {
             Ok(Some(record)) => {
                 let n = record.len();
                 buf[..n].copy_from_slice(record);
@@ -88,6 +92,8 @@ impl<
 
     async fn store(&mut self, data: &[u8]) -> Result<(), Self::Error> {
         let mut work_buf = [0u8; BUF_SIZE];
-        self.storage.store_item(&mut work_buf, &SETTINGS_KEY, &data).await
+        self.storage
+            .store_item(&mut work_buf, &SETTINGS_KEY, &data)
+            .await
     }
 }

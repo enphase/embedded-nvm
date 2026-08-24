@@ -150,7 +150,9 @@ impl<'de> serde::Deserialize<'de> for Base {
     where
         D: serde::Deserializer<'de>,
     {
-        Err(<D::Error as serde::de::Error>::custom("Base is uninhabited"))
+        Err(<D::Error as serde::de::Error>::custom(
+            "Base is uninhabited",
+        ))
     }
 }
 #[cfg(not(feature = "max-size"))]
@@ -172,7 +174,7 @@ impl postcard::experimental::max_size::MaxSize for Base {
 /// provided here.
 pub trait Version: Sized
 where
-    Self: From<Self::Wire>, // normalize (reflexive when `Wire = Self`); implied for the `Prev` spine
+    Self: From<Self::Wire>,
 {
     /// On-flash tag (varint-encoded). Must be `> Prev::TAG`.
     const TAG: u16;
@@ -215,8 +217,7 @@ where
             .get_mut(..record.len())
             .ok_or(Error::Corrupt)?
             .copy_from_slice(record);
-        let (tag, body) =
-            postcard::take_from_bytes::<u16>(&scratch).map_err(|_| Error::Corrupt)?;
+        let (tag, body) = postcard::take_from_bytes::<u16>(&scratch).map_err(|_| Error::Corrupt)?;
         load::<Self>(tag, body)
     }
 
@@ -271,12 +272,18 @@ mod tests {
     }
     impl From<DemoWire> for Demo {
         fn from(w: DemoWire) -> Demo {
-            Demo { a: w.a, b: w.b.unwrap_or(Demo::default().b) }
+            Demo {
+                a: w.a,
+                b: w.b.unwrap_or(Demo::default().b),
+            }
         }
     }
     impl From<Demo> for DemoWire {
         fn from(d: Demo) -> DemoWire {
-            DemoWire { a: d.a, b: Some(d.b) }
+            DemoWire {
+                a: d.a,
+                b: Some(d.b),
+            }
         }
     }
     impl Version for Demo {
@@ -284,7 +291,10 @@ mod tests {
         type Prev = DemoV0;
         type Wire = DemoWire;
         fn from_prev(p: DemoV0) -> Demo {
-            Demo { a: p.a, ..Demo::default() }
+            Demo {
+                a: p.a,
+                ..Demo::default()
+            }
         }
     }
 
@@ -342,7 +352,10 @@ mod tests {
     fn migrates_from_oldest() {
         let mut buf = record_buf::<Demo>();
         let n = write_versioned(DemoV0::TAG, &(7u16,), &mut buf).unwrap();
-        assert_eq!(Demo::deserialize_from::<32>(&buf[..n]).unwrap(), Demo { a: 7, b: 99 });
+        assert_eq!(
+            Demo::deserialize_from::<32>(&buf[..n]).unwrap(),
+            Demo { a: 7, b: 99 }
+        );
     }
 
     #[test]
@@ -396,7 +409,10 @@ mod tests {
 
         let mut buf = record_buf::<Small>();
         let n = write_versioned(BigV0::TAG, &(111u32, 222u32, 333u32), &mut buf).unwrap();
-        assert_eq!(Small::deserialize_from::<32>(&buf[..n]).unwrap(), Small { a: 222 });
+        assert_eq!(
+            Small::deserialize_from::<32>(&buf[..n]).unwrap(),
+            Small { a: 222 }
+        );
     }
 }
 
@@ -417,7 +433,10 @@ mod maxsize_tests {
     }
     impl Default for Gain {
         fn default() -> Self {
-            Gain { gain: U16F16::from_num(1), n: 0 }
+            Gain {
+                gain: U16F16::from_num(1),
+                n: 0,
+            }
         }
     }
     #[derive(Clone, Copy, serde::Serialize, serde::Deserialize, MaxSize)]
@@ -427,12 +446,18 @@ mod maxsize_tests {
     }
     impl From<GainWire> for Gain {
         fn from(w: GainWire) -> Gain {
-            Gain { gain: w.gain.0, n: w.n }
+            Gain {
+                gain: w.gain.0,
+                n: w.n,
+            }
         }
     }
     impl From<Gain> for GainWire {
         fn from(g: Gain) -> GainWire {
-            GainWire { gain: WireFixed(g.gain), n: g.n }
+            GainWire {
+                gain: WireFixed(g.gain),
+                n: g.n,
+            }
         }
     }
     impl Version for Gain {
@@ -450,13 +475,20 @@ mod maxsize_tests {
         // RECORD_MAX is derived from the wire's `MaxSize` (no hand sum): 5 (fixed) + 3 (u16) + tag.
         assert_eq!(
             Gain::RECORD_MAX,
-            <GainWire as MaxSize>::POSTCARD_MAX_SIZE + varint_max_bytes(core::mem::size_of::<u16>())
+            <GainWire as MaxSize>::POSTCARD_MAX_SIZE
+                + varint_max_bytes(core::mem::size_of::<u16>())
         );
 
-        let g = Gain { gain: U16F16::from_num(3.5), n: 1000 };
+        let g = Gain {
+            gain: U16F16::from_num(3.5),
+            n: 1000,
+        };
         let mut buf = [0u8; 1 + Gain::RECORD_MAX];
         let n = g.serialize_into(&mut buf).unwrap();
-        assert_eq!(Gain::deserialize_from::<{ 1 + Gain::RECORD_MAX }>(&buf[..n]).unwrap(), g);
+        assert_eq!(
+            Gain::deserialize_from::<{ 1 + Gain::RECORD_MAX }>(&buf[..n]).unwrap(),
+            g
+        );
     }
 }
 
