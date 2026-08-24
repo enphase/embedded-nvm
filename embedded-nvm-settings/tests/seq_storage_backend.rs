@@ -107,7 +107,7 @@ fn seq_backend_store_and_load_roundtrip() {
 
         // --- Cycle 2: power cycle (same flash, new NvmSettings) ---
         {
-            let mut nvm = make_nvm(flash.clone());
+            let nvm = make_nvm(flash.clone());
             let found = nvm.load().await.expect("load failed");
             assert!(found, "expected a stored record");
             assert_eq!(nvm.get(), expected);
@@ -119,7 +119,7 @@ fn seq_backend_store_and_load_roundtrip() {
 fn seq_backend_blank_flash_returns_default() {
     block_on(async {
         let flash = SharedFlash::new();
-        let mut nvm = make_nvm(flash);
+        let nvm = make_nvm(flash);
         let found = nvm
             .load()
             .await

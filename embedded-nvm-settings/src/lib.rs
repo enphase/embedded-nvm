@@ -85,26 +85,15 @@ struct Cached<T> {
 /// Cached persistent settings with deferred async commit.
 ///
 /// Reads ([`get`](Self::get)) and writes ([`update`](Self::update)) hit an
-/// in-memory cache and are **immediate, synchronous, and atomic** (a
-/// `CriticalSectionRawMutex`-guarded `Cell`), safe to call straight from a
+/// in-memory cache and are **immediate, synchronous, and atomic**
+/// (mutex-guarded cell), safe to call straight from a
 /// sync closure or ISR. A write only marks the cache dirty, the blocking
 /// storage write is deferred to [`commit`](Self::commit), which is async and a
 /// no-op unless the cache is dirty. The caller decides when to `commit`,
 /// keeping flash off the hot path and allowing many edits to coalesce.
 ///
-/// # Concurrency & ISR safety
-///
-/// [`get`](Self::get)/[`update`](Self::update) only take a
-/// `CriticalSectionRawMutex` critical section and should never wait and are
-/// safe from any context including ISRs.
-///
-/// [`commit`](Self::commit) is `async` and takes an async `Mutex`, so it can
-/// only run inside a task (never a raw ISR) and yields rather than spins when
-/// contended — also deadlock-free under cooperative scheduling. Never `block_on`
-/// it; from an ISR or critical section that can hang. The cache lock is held
-/// only briefly and never across the commit `.await`, so there is no lock-order
-/// cycle. To persist from a sync/ISR context, signal an async owner to call
-/// `commit`.
+/// Operations keep the cache locked for the shortest possible time
+/// and use an await-free blocking_mutex Mutex.
 ///
 /// # Type parameters
 ///
@@ -149,10 +138,10 @@ impl<
     /// Load settings from storage into the cache.
     ///
     /// Returns:
-    /// - `Ok(true)`:a stored record was loaded successfully.
-    /// - `Ok(false)`: no stored record found, the cache retains its default.
+    /// - `Ok(true)`: a stored record was loaded successfully.
+    /// - `Ok(false)`: no stored record found, the cache is unmodified.
     /// - `Err(...)`: propagates underlying error from format or storage backend
-    pub async fn load(&mut self) -> Result<bool, LoadError<F::Error, B::Error>> {
+    pub async fn load(&self) -> Result<bool, LoadError<F::Error, B::Error>> {
         let mut backend = self.writer.lock().await;
         let mut buf = [0u8; BUF_SIZE];
         match backend.load(&mut buf).await {
@@ -173,14 +162,13 @@ impl<
         }
     }
 
-    /// Read the current cached value. Wait-free and ISR-safe.
+    /// Read the current cached value. Await-free and ISR-safe.
     pub fn get(&self) -> T {
         self.cache.lock(|c| c.get().value)
     }
 
     /// Apply `f` to the cached value, updating the cached value.
-    /// Synchronous, atomic, wait-free and ISR-safe.
-    /// `f` runs inside a critical section (interrupts disabled), so keep it short.
+    /// Synchronous, atomic, await-free and ISR-safe.
     ///
     /// Does not write flash, only marks the cache dirty if there is a change.
     /// Persist later via [`commit`](Self::commit).
@@ -198,10 +186,10 @@ impl<
     /// Persist the cached value to storage if the cache is marked dirty.
     /// No-op when cache is clean.
     ///
-    /// On error the dirty flag is restored so a later commit retries.
+    /// On error the dirty flag is restored so a later commit retries,
+    /// without modifying the value (which may have changed since the write attempt).
     pub async fn commit(&self) -> Result<(), CommitError<F::Error, B::Error>> {
         // Atomically snapshot the value and clear dirty before the async write.
-        // If a concurrent update happens, the newer value is picked up by the next commit.
         let value = match self.cache.lock(|c| {
             let cur = c.get();
             if cur.dirty {

@@ -106,7 +106,7 @@ fn new_returns_default() {
 #[test]
 fn load_empty_returns_false() {
     block_on(async {
-        let mut nvm = TestNvm::new(MemoryBackend::new(), fmt());
+        let nvm = TestNvm::new(MemoryBackend::new(), fmt());
         assert_eq!(nvm.load().await.unwrap(), false);
         assert_eq!(nvm.get(), TestSettings::default());
     });
@@ -119,7 +119,7 @@ fn load_preseeded_returns_true() {
         let mut buf = [0u8; 64];
         let n = fmt().serialize(&value, &mut buf).unwrap();
 
-        let mut nvm = TestNvm::new(MemoryBackend::with_data(&buf[..n]), fmt());
+        let nvm = TestNvm::new(MemoryBackend::with_data(&buf[..n]), fmt());
         assert_eq!(nvm.load().await.unwrap(), true);
         assert_eq!(nvm.get(), value);
     });
@@ -128,7 +128,7 @@ fn load_preseeded_returns_true() {
 #[test]
 fn load_corrupt_returns_deserialize_error() {
     block_on(async {
-        let mut nvm = TestNvm::new(MemoryBackend::with_data(&[0xFF; 8]), fmt());
+        let nvm = TestNvm::new(MemoryBackend::with_data(&[0xFF; 8]), fmt());
         assert!(matches!(nvm.load().await, Err(LoadError::Deserialize(_))));
         assert_eq!(nvm.get(), TestSettings::default());
     });
@@ -139,7 +139,7 @@ fn load_io_error_returns_storage_error() {
     block_on(async {
         let mut backend = MemoryBackend::new();
         backend.fail = true;
-        let mut nvm = TestNvm::new(backend, fmt());
+        let nvm = TestNvm::new(backend, fmt());
         assert!(matches!(
             nvm.load().await,
             Err(LoadError::Storage(MemoryBackendError::Injected))

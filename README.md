@@ -66,8 +66,8 @@ let backend = SeqStorageBackend::new(flash, NoCache::new());
 // this would be in your async firmware code
 embassy_futures::block_on(async {
     // creates a default AppSettings object
-    // multiple references to settings can be shared with a StaticCell / RefCell wrapper
-    let mut settings = AppSettings::new(backend, VersionedPostcardFormat);
+    // the reference can be shared as operations do not require a mutable reference
+    let settings = AppSettings::new(backend, VersionedPostcardFormat);
 
     // load existing settings from flash (if any)
     // on error, the settings object is unmodified and here keeps the initial defaults
