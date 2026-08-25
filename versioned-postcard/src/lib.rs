@@ -72,6 +72,11 @@
 
 #![cfg_attr(not(test), no_std)]
 
+// Test README examples as doctests.
+#[cfg(all(doctest, feature = "max-size"))]
+#[doc = include_str!("../README.md")]
+struct ReadmeDoctests;
+
 mod sizing;
 
 #[cfg(feature = "max-size")]
@@ -126,7 +131,7 @@ fn load<V: Version>(tag: u16, body: &[u8]) -> Result<V, Error> {
     if V::TAG == 0 {
         return Err(Error::Corrupt); // reached `Base` without a tag match
     }
-    let _ = V::_TAGS_INCREASE; // force the compile-time ordering check for this version
+    let () = V::_TAGS_INCREASE; // force the compile-time ordering check for this version
     if tag == V::TAG {
         // `body` is the wire payload followed by zero padding; `from_bytes` reads this wire's fields
         // (an appended-absent `Option` reads its `0` tag byte as `None`) and ignores the rest.
@@ -315,7 +320,7 @@ mod tests {
     }
 
     fn record_buf<T: Version>() -> [u8; 32] {
-        assert!(1 + T::RECORD_MAX <= 32);
+        assert!(T::RECORD_MAX < 32);
         [0u8; 32]
     }
 
@@ -404,7 +409,7 @@ mod tests {
     #[test]
     fn record_max_folds_to_the_larger_prev_and_it_decodes() {
         // Latest is smaller, but RECORD_MAX is the MAX over the spine (= the big prev + tag).
-        assert!(Small::SIZE < BigV0::SIZE);
+        const _: () = assert!(Small::SIZE < BigV0::SIZE);
         assert_eq!(Small::RECORD_MAX, BigV0::RECORD_MAX);
 
         let mut buf = record_buf::<Small>();

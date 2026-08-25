@@ -34,6 +34,12 @@ pub struct MemoryBackend {
     fail: bool,
 }
 
+impl Default for MemoryBackend {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MemoryBackend {
     pub fn new() -> Self {
         Self {
@@ -107,7 +113,7 @@ fn new_returns_default() {
 fn load_empty_returns_false() {
     block_on(async {
         let nvm = TestNvm::new(MemoryBackend::new(), fmt());
-        assert_eq!(nvm.load().await.unwrap(), false);
+        assert!(!nvm.load().await.unwrap());
         assert_eq!(nvm.get(), TestSettings::default());
     });
 }
@@ -120,7 +126,7 @@ fn load_preseeded_returns_true() {
         let n = fmt().serialize(&value, &mut buf).unwrap();
 
         let nvm = TestNvm::new(MemoryBackend::with_data(&buf[..n]), fmt());
-        assert_eq!(nvm.load().await.unwrap(), true);
+        assert!(nvm.load().await.unwrap());
         assert_eq!(nvm.get(), value);
     });
 }

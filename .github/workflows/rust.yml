@@ -8,6 +8,8 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  # feature set for testing, since there are no default features
+  SETTINGS_FEATURES: sequential-storage,versioned-postcard,postcard
 
 jobs:
   build:
@@ -17,8 +19,14 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - name: Formatting
-      run: cargo fmt --check
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
+      run: cargo fmt --all --check
+    - name: Clippy (versioned-postcard)
+      run: cargo clippy -p versioned-postcard --all-targets --all-features -- -D warnings
+    - name: Clippy (embedded-nvm-settings)
+      run: cargo clippy -p embedded-nvm-settings --all-targets --features $SETTINGS_FEATURES -- -D warnings
+    - name: Test (versioned-postcard)
+      run: cargo test -p versioned-postcard --features max-size --verbose
+    - name: Test (embedded-nvm-settings)
+      run: cargo test -p embedded-nvm-settings --features $SETTINGS_FEATURES --verbose
+    - name: Publish dry-run
+      run: cargo publish --dry-run --workspace

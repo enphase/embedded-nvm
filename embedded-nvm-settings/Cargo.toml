@@ -3,6 +3,8 @@ name = "embedded-nvm-settings"
 version = "0.1.0"
 description = "Memory-cached NVM settings for embedded with deferred async commit and ISR safety"
 categories = ["embedded", "no-std"]
+keywords = ["nvm", "settings", "flash", "embedded"]
+readme = "README.md"
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
@@ -20,7 +22,7 @@ serde = { version = "1.0", default-features = false, optional = true }
 defmt = { version = "1.0.1", optional = true }
 
 [features]
-default = ["sequential-storage", "versioned-postcard", "postcard"]
+default = []
 sequential-storage = ["dep:sequential-storage", "dep:embedded-storage-async"]
 versioned-postcard = ["dep:versioned-postcard", "dep:serde"]
 postcard = ["dep:postcard", "dep:serde"]

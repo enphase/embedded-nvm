@@ -49,6 +49,7 @@ impl ErrorType for SharedFlash {
     type Error = MockFlashError;
 }
 
+#[allow(clippy::await_holding_lock)]
 impl ReadNorFlash for SharedFlash {
     const READ_SIZE: usize = MockFlash::READ_SIZE;
 
@@ -63,6 +64,7 @@ impl ReadNorFlash for SharedFlash {
 
 impl MultiwriteNorFlash for SharedFlash {}
 
+#[allow(clippy::await_holding_lock)]
 impl NorFlash for SharedFlash {
     const WRITE_SIZE: usize = MockFlash::WRITE_SIZE;
     const ERASE_SIZE: usize = MockFlash::ERASE_SIZE;

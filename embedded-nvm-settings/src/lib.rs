@@ -15,9 +15,13 @@
 //! Cached persistent settings for embedded systems with deferred async commit.
 #![cfg_attr(not(test), no_std)]
 
-// Test README examples as doctests.
-#[cfg(doctest)]
-#[doc = include_str!("../../README.md")]
+// Test README examples as doctests, which requires backend and format features.
+#[cfg(all(
+    doctest,
+    feature = "sequential-storage",
+    feature = "versioned-postcard"
+))]
+#[doc = include_str!("../README.md")]
 struct ReadmeDoctests;
 
 mod settings_format;
