@@ -75,7 +75,7 @@ embassy_futures::block_on(async {
     let settings = AppSettings::new(backend, VersionedPostcardFormat);
 
     // load existing settings from flash (if any)
-    // on error, the settings object is unmodified and here keeps the initial defaults
+    // on error, the settings object is unmodified (here, keeps initial defaults)
     settings.load().await.ok();
 
     let a = settings.get().a;  // read value
