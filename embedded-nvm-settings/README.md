@@ -8,13 +8,13 @@ Built-in adapters to work with versioned-postcard and vanilla postcard.
 
 ## Example
 
-No features are enabled by default, enable the storage and format backends you need (or implement the `StorageBackend` and `SettingsFormat` traits).
-
+The built-in storage and format backends (which pull in `sequential-storage`, `postcard`, and `versioned-postcard` dependencies) are opt-in with features:
 ```toml
 [dependencies]
 embedded-nvm-settings = { version = "0.1", features = ["sequential-storage", "versioned-postcard"] }
 # alternatively, use the postcard format instead of versioned-postcard
 embedded-nvm-settings = { version = "0.1", features = ["sequential-storage", "postcard"] }
+# otherwise, you must implement the `StorageBackend` and `SettingsFormat` traits yourself
 ```
 
 ```rust
@@ -40,6 +40,8 @@ impl Version for Settings {
     // optionally, this could specify another Version and define a migration function
     type Prev = Base;
     fn from_prev(p: Base) -> Settings { match p {} }
+
+    // append-only schema evolution within the same TAG is also supported, see the versioned-postcard README
 }
 
 
@@ -84,13 +86,3 @@ embassy_futures::block_on(async {
     settings.commit().await.ok();
 });
 ```
-
-For append-only schema evolution, see the [`versioned-postcard` README](../versioned-postcard/README.md).
-
-
-## Feature flags
-
-- `sequential-storage`: the `SeqStorageBackend` storage backend (and the `SeqNvmSettings` alias).
-- `versioned-postcard`: the `VersionedPostcardFormat` serialization format.
-- `postcard`: the `PostcardFormat` serialization format, unversioned.
-- `defmt`: derive `defmt::Format` on the error types, and forward the feature to dependencies.
