@@ -8,7 +8,7 @@ Support for appended new fields migration within the same version tag using Opti
 `no_std`, no allocator.
 
 
-## A single version
+## Example
 
 ```rust
 // uses versioned-postcard with feature "max-size", which also pulls in postcard "experimental-derive"
@@ -40,7 +40,7 @@ assert_eq!(
 );
 ```
 
-## Appending a field without a new version tag
+### Appending a field without a new version tag
 
 Define a separate `Wire` struct whose appended fields are `Option` with converters in both directions.
 Records written by the older firmware decode with `None` for the appended field, and normalization substitutes the default.
