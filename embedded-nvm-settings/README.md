@@ -87,18 +87,10 @@ embassy_futures::block_on(async {
 
 For append-only schema evolution, see the [`versioned-postcard` README](../versioned-postcard/README.md).
 
-## Features
 
+## Feature flags
 
-
-- `sequential-storage` — the `SeqStorageBackend` storage backend (and the `SeqNvmSettings` alias).
-- `versioned-postcard` — the `VersionedPostcardFormat` serialization format.
-- `postcard` — the `PostcardFormat` serialization format, unversioned.
-- `defmt` — derive `defmt::Format` on the error types, and forward the feature to dependencies.
-
-With no features you still get `NvmSettings` plus the `StorageBackend` and `SettingsFormat` traits,
-which is enough to plug in your own backend or format.
-
-
-For schema evolution — new version tags, and appending fields without a new tag — see the
-[`versioned-postcard` README](https://github.com/enphase/embedded-nvm/blob/main/versioned-postcard/README.md).
+- `sequential-storage`: the `SeqStorageBackend` storage backend (and the `SeqNvmSettings` alias).
+- `versioned-postcard`: the `VersionedPostcardFormat` serialization format.
+- `postcard`: the `PostcardFormat` serialization format, unversioned.
+- `defmt`: derive `defmt::Format` on the error types, and forward the feature to dependencies.
